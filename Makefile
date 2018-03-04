@@ -8,5 +8,5 @@ functions.o: functions.cpp header.h
 	g++ -g -c -Wall functions.cpp
 
 clean:
-	rm cache main.o functions.o cache.o
+	rm cache main.o functions.o 
 
