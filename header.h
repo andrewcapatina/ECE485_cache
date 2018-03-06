@@ -21,6 +21,7 @@
 
 using namespace std;
 
+
 struct cache_set
 {
     bool mru;           // mru bit, keeps track if block was recently accessed.
@@ -45,42 +46,19 @@ class cache_class {
 
     public:
         // Constructor with integer arguments.
-        cache_class(int sets_per_way_temp,int associativity_temp, int line_size); 
-
+        cache_class(); 
         // Destructor function.
         ~cache_class();         
+        int cache_creator(int sets_per_way_temp,int associativity_temp, int line_size); 
 
-
-        cache_set ** cache_ptr;       // Pointer to entire cache structure
-
-        int sets_per_way;       // Records number of sets per way.
-        int associativity;      // Records number of ways.
-        int line_size;          // Records line size.
-
-        int tag_bits;           // Records number of tag bits.
-        int index_bits;         // Records number of index bits.
-        int byte_bits;          // Records number of byte select bits.
-
-
-    private:
-        
-};
-
-class cache_helper {
-
-    public:
-        // Constructor
-        cache_helper();
-        // Destructor
-        ~cache_helper();
+        int cache_deletor();
 
         // Function prototype with string paramater.
-        int parse_request(string cache_request);
+        int parse_request(string cache_request,int index_bits, int address_bits);
 
-
-        string address;
 
     private:
+        cache_set ** cache_ptr = NULL;       // Pointer to entire cache structure
         int cache_accesses;     // Tracks number of cache accesses.
         int cache_reads;        // Tracks number of cache reads.
         int cache_writes;       // Tracks number of cache writes.
@@ -94,10 +72,8 @@ class cache_helper {
         int tag_bits;           // Records number of tag bits.
         int index_bits;         // Records number of index bits.
         int byte_bits;          // Records number of byte select bits.
-
-        
+        int sets_per_way;       // Records number of sets per way.
+        int associativity;      // Records number of ways.
+        int line_size;          // Records line size.
 
 };
-
-
-

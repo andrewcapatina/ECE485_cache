@@ -31,12 +31,44 @@ cache_set::~cache_set(void)
     tag = "";
 }
 
-cache_class::cache_class(int sets_per_way_temp, int associativity_temp, int line_size_temp)
+cache_class::cache_class(void)
+{
+    cache_accesses = 0;        
+    cache_reads = 0;
+    cache_writes = 0;
+    cache_hits = 0;
+    cache_misses = 0;
+    hit_ratio = 0;
+    miss_ratio = 0;
+    cache_evictions = 0;
+    access_type = 0;
+
+
+
+}
+
+cache_class::~cache_class(void)
+{
+    cache_accesses = 0;        
+    cache_reads = 0;
+    cache_writes = 0;
+    cache_hits = 0;
+    cache_misses = 0;
+    hit_ratio = 0;
+    miss_ratio = 0;
+    cache_evictions = 0;
+    access_type = 0;
+
+}
+
+
+int cache_class::cache_creator(int sets_per_way_temp, int associativity_temp, int line_size_temp)
 {
     sets_per_way = sets_per_way_temp;   // Assigning sets per way.
     associativity = associativity_temp; // Assigning associativity.
     line_size = line_size_temp;
 
+    
     // Initializing cache data structure
     cache_ptr = new cache_set*[sets_per_way];         // Allocating rows of cache
     for(int i = 0; i < sets_per_way; ++i)
@@ -48,9 +80,10 @@ cache_class::cache_class(int sets_per_way_temp, int associativity_temp, int line
         for(int j = 0; j < associativity; ++j)
             cache_ptr[i][j].cache_line = new int[line_size];
 
+    return 0;
 }
 
-cache_class::~cache_class(void)
+int cache_class::cache_deletor(void)
 {
     // Add code to deallocate cache structure
    
@@ -74,42 +107,10 @@ cache_class::~cache_class(void)
     sets_per_way = 0;
     associativity = 0;
     line_size = 0;
-    tag_bits = 0;
-    index_bits = 0;
-    byte_bits = 0;
+    return 0;
 }
 
-cache_helper::cache_helper()
-{
-    cache_accesses = 0;        
-    cache_reads = 0;
-    cache_writes = 0;
-    cache_hits = 0;
-    cache_misses = 0;
-    hit_ratio = 0;
-    miss_ratio = 0;
-    cache_evictions = 0;
-    access_type = 0;
-
-
-}
-
-cache_helper::~cache_helper()
-{
-    cache_accesses = 0;        
-    cache_reads = 0;
-    cache_writes = 0;
-    cache_hits = 0;
-    cache_misses = 0;
-    hit_ratio = 0;
-    miss_ratio = 0;
-    cache_evictions = 0;
-    access_type = 0;
-
-
-}
-
-int cache_helper::parse_request(string cache_request)
+int cache_class::parse_request(string cache_request,int index_bits, int tag_bits)
 {
     string type_temp;
     string address_temp;
@@ -125,6 +126,9 @@ int cache_helper::parse_request(string cache_request)
     {
         iss >> address_temp;    // Copying address to string.
     } while(iss);
+
+
+
 
     return 0;
 }

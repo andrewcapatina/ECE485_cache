@@ -21,9 +21,11 @@ int main(int argc, char * argv[])
     int sets_per_way = 0;
     int associativity = 0;
     int line_size = 0;
+    int index_bits =0;
+    int address_bits = 0;
     string cache_request;
 
-    cache_helper helper_func;
+    cache_class cache;       // Cache object creation.
 
     ifstream fd;                // Initializing file descriptor.
 
@@ -36,17 +38,22 @@ int main(int argc, char * argv[])
     sets = atoi(argv[2]);       // Converting arguments to int
     associativity = atoi(argv[3]);
     line_size = atoi(argv[4]);
+    index_bits = log2(sets);
+    address_bits = 32- index_bits;
 
     sets_per_way = sets/associativity;  // Getting sets per way.
 
-    cache_class cache(sets_per_way,associativity,line_size);       // Cache object creation.
+    cache.cache_creator(sets_per_way,associativity,line_size);       // Cache object creation.
 
     fd.open(argv[1]);
     //while(getline(fd,cache_request) != -1)
 
         getline(fd,cache_request);
 
-        helper_func.parse_request(cache_request);
+        cache.parse_request(cache_request, index_bits,address_bits);
 
+
+
+    cache.cache_deletor();
     return 0;
 }
