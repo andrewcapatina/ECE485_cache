@@ -58,6 +58,8 @@ class cache_class {
         // Function prototype with char paramater.
         const char* hex_to_bin(char to_convert);
 
+		// Function for replacement policy (placeholder)
+		// int replacement_policy(int access_type, int memory_address);
 
     private:
         cache_set ** cache_ptr = NULL;       // Pointer to entire cache structure

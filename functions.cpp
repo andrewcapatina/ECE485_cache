@@ -219,3 +219,12 @@ const char* cache_class::hex_to_bin(char to_convert)
 
     return NULL;
 }
+
+
+/*
+int cache_class::replacement_policy(int access_type, int memory_address)
+{
+              
+//  still working on high level algorithm. taking longer than expected
+	
+} */
