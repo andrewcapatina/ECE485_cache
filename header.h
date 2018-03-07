@@ -10,7 +10,7 @@
  */
 
 
-#include <string>
+#include <string.h>
 #include <iostream>
 #include <fstream>
 #include <stdio.h>
@@ -18,6 +18,7 @@
 #include <math.h>
 #include <string>
 #include <sstream>
+#include <valarray>
 
 using namespace std;
 
@@ -37,24 +38,25 @@ struct cache_set
     cache_set();              // Constructor for struct
     ~cache_set();             // Destructor for struct
 
-    // Constructor with arguments.
-    //set(int tag_bits);
-
 };
 
 class cache_class {
 
     public:
-        // Constructor with integer arguments.
+        // Constructor with no arguments.
         cache_class(); 
         // Destructor function.
         ~cache_class();         
+        // Function to create data structure.
         int cache_creator(int sets_per_way_temp,int associativity_temp, int line_size); 
-
+        // Function to delete data structure.
         int cache_deletor();
 
         // Function prototype with string paramater.
-        int parse_request(string cache_request,int index_bits, int address_bits);
+        int parse_request(char* cache_request,int byte_b_temp, int index_b_temp, int tag_b_temp);
+
+        // Function prototype with char paramater.
+        const char* hex_to_bin(char to_convert);
 
 
     private:
@@ -71,9 +73,13 @@ class cache_class {
         bool access_type;       // Records access type for current requests.
         int tag_bits;           // Records number of tag bits.
         int index_bits;         // Records number of index bits.
-        int byte_bits;          // Records number of byte select bits.
+        int byte_bits;          // Records nymber of byte select bits.
         int sets_per_way;       // Records number of sets per way.
         int associativity;      // Records number of ways.
         int line_size;          // Records line size.
+
+        int tag_request;        // Tracks current tag request.
+        int index_request;      // Tracks current index request.
+        int byte_request;       // Tracks current byte request.
 
 };

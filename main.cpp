@@ -23,7 +23,9 @@ int main(int argc, char * argv[])
     int line_size = 0;
     int index_bits =0;
     int address_bits = 0;
+    int byte_bits = 0;
     string cache_request;
+    char cache_request_char[20];
 
     cache_class cache;       // Cache object creation.
 
@@ -38,8 +40,9 @@ int main(int argc, char * argv[])
     sets = atoi(argv[2]);       // Converting arguments to int
     associativity = atoi(argv[3]);
     line_size = atoi(argv[4]);
-    index_bits = log2(sets);
-    address_bits = 32- index_bits;
+    index_bits = log2(sets);    // Taking log2 of paramaters for addressing bits
+    byte_bits = log2(line_size);
+    address_bits = 32- byte_bits - index_bits;
 
     sets_per_way = sets/associativity;  // Getting sets per way.
 
@@ -49,8 +52,8 @@ int main(int argc, char * argv[])
     //while(getline(fd,cache_request) != -1)
 
         getline(fd,cache_request);
-
-        cache.parse_request(cache_request, index_bits,address_bits);
+        strcpy(cache_request_char,cache_request.c_str());
+        cache.parse_request(cache_request_char, byte_bits, index_bits, address_bits);
 
 
 
