@@ -324,9 +324,6 @@ int cache_class::cache_write_policy()
     cache_ptr[index_request][to_evict].valid = 1;               // Setting valid bit on line fill. 
     cache_ptr[index_request][to_evict].dirty = 1;               // Setting dirty bit.
 
-
-
-
     return 0;
 }
 
@@ -385,7 +382,7 @@ int cache_class::cache_handler()
 {
 
     if(access_type == 0)
-        cache_read_policy();
+        cache_read_policy();    // Call read or write based on access request.
     else
         cache_write_policy();
 

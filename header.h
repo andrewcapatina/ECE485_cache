@@ -31,12 +31,12 @@ struct cache_set
 
     bool dirty;         // Dirty bit variable. Keeps track if data modified.
 
-    int tag;         // Tag address for cache data
+    int tag;            // Tag address for cache data
 
-    int *cache_line;      // Array for line size in bytes.
+    int *cache_line;    // Array for line size in bytes.
 
-    cache_set();              // Constructor for struct
-    ~cache_set();             // Destructor for struct
+    cache_set();        // Constructor for struct
+    ~cache_set();       // Destructor for struct
 
 };
 
