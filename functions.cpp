@@ -17,7 +17,7 @@ cache_set::cache_set()
     mru = 0;            // Initializing struct members.
     valid = 0;
     dirty = 0;
-    //tag = "";
+    tag = 0;
     cache_line = NULL;
 
 }
@@ -28,7 +28,7 @@ cache_set::~cache_set(void)
     mru = 0;            // Deallocating struct members.
     valid = 0;
     dirty = 0;
-    //tag = "";
+    tag = 0;
 }
 
 cache_class::cache_class(void)
@@ -170,9 +170,6 @@ int cache_class::parse_request(char* cache_request, int byte_b_temp, int index_b
 
     }
 
-    //cout << tag_temp << endl;
-    //cout << index_temp << endl;
-    //cout << byte_temp << endl;
 
     // The variables below hold the current access request.
     tag_request = strtol(tag_temp,NULL,2);      // Convert temp arrays to integers. 
@@ -185,12 +182,6 @@ int cache_class::parse_request(char* cache_request, int byte_b_temp, int index_b
     else
         access_type = 1;        // if one, set to write value.
 
-
-    //cache_write_policy();
-    //cache_read_policy();
-
-
-    // Start implementing replacement policies.
 
     return 0;
 }
@@ -299,6 +290,8 @@ int cache_class::cache_write_policy()
             cache_ptr[index_request][j].mru = 1;        // Set valid bit to one.
 
             cache_ptr[index_request][j].tag = tag_request;  // Setting tag address.
+            
+            cache_ptr[index_request][j].dirty = 1;      // Set the dirty bit.
             // What to do with byte request????
             
             return 0;
@@ -308,9 +301,9 @@ int cache_class::cache_write_policy()
         {
             if(cache_ptr[index_request][j].tag == tag_request) 
             {
-                cache_hits = cache_hits + 1;
-                cache_ptr[index_request][j].mru = 1;
-                cache_ptr[index_request][j].dirty = 1;
+                cache_hits = cache_hits + 1;                 // Increment cache hit counter.
+                cache_ptr[index_request][j].mru = 1;         // Set mru bit due to access.
+                cache_ptr[index_request][j].dirty = 1;       // Setting dirty bit.
                 // Does anything need to be done to the cache line???
                 
                 return 0;
@@ -329,6 +322,7 @@ int cache_class::cache_write_policy()
     cache_ptr[index_request][to_evict].tag = tag_request;       // Fill cache line with tag requested. 
     cache_ptr[index_request][to_evict].mru = 1;                 // Set mru bit since line being brought into cache. 
     cache_ptr[index_request][to_evict].valid = 1;               // Setting valid bit on line fill. 
+    cache_ptr[index_request][to_evict].dirty = 1;               // Setting dirty bit.
 
 
 
@@ -364,13 +358,15 @@ int cache_class::cache_check_mru()
     return to_evict;    // Return eviction candidate index.
 }
 
+// Function that displays all access results
 int cache_class::display_results()
 {
-    float hits_temp = cache_hits;
-    float accesses_temp = cache_accesses;
-    hit_ratio = (hits_temp/accesses_temp);  // Calculating hit ratio.
-    miss_ratio = 1-hit_ratio;                     // Calculating miss ratio.
+    float hits_temp = cache_hits;             
+    float accesses_temp = cache_accesses;        
+    hit_ratio = (hits_temp/accesses_temp);      // Calculating hit ratio.
+    miss_ratio = 1-hit_ratio;                   // Calculating miss ratio.
 
+    // Displaying all results.
     cout << "Total accesses:    " << cache_accesses << endl;
     cout << "Total reads:       " << cache_reads << endl;
     cout << "Total writes:      " << cache_writes << endl;
@@ -384,6 +380,7 @@ int cache_class::display_results()
     return 0;
 }
 
+// Function to call write or read policy functions.
 int cache_class::cache_handler()
 {
 
