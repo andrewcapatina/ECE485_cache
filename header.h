@@ -31,7 +31,7 @@ struct cache_set
 
     bool dirty;         // Dirty bit variable. Keeps track if data modified.
 
-    string tag;         // Tag address for cache data
+    int tag;         // Tag address for cache data
 
     int *cache_line;      // Array for line size in bytes.
 
@@ -58,8 +58,12 @@ class cache_class {
         // Function prototype with char paramater.
         const char* hex_to_bin(char to_convert);
 
-		// Function for replacement policy (placeholder)
-		// int replacement_policy(int access_type, int memory_address);
+        // Function prototype with integer return.
+        int cache_write_policy();
+
+        // Function prototype with integer return.
+        int cache_read_policy();
+
 
     private:
         cache_set ** cache_ptr = NULL;       // Pointer to entire cache structure

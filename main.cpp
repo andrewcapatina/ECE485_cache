@@ -39,12 +39,21 @@ int main(int argc, char * argv[])
     }
     sets = atoi(argv[2]);       // Converting arguments to int
     associativity = atoi(argv[3]);
+
+    sets_per_way = sets/associativity;  // Getting sets per way.
+
     line_size = atoi(argv[4]);
-    index_bits = log2(sets);    // Taking log2 of paramaters for addressing bits
+
+    index_bits = log2(sets_per_way);    // Taking log2 of paramaters for addressing bits
+
+
     byte_bits = log2(line_size);
     address_bits = 32- byte_bits - index_bits;
 
-    sets_per_way = sets/associativity;  // Getting sets per way.
+    //cout << address_bits << endl;
+    //cout << index_bits << endl;
+    //cout << byte_bits << endl;
+
 
     cache.cache_creator(sets_per_way,associativity,line_size);       // Cache object creation.
 

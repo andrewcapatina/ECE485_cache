@@ -17,7 +17,7 @@ cache_set::cache_set()
     mru = 0;            // Initializing struct members.
     valid = 0;
     dirty = 0;
-    tag = "";
+    //tag = "";
     cache_line = NULL;
 
 }
@@ -28,7 +28,7 @@ cache_set::~cache_set(void)
     mru = 0;            // Deallocating struct members.
     valid = 0;
     dirty = 0;
-    tag = "";
+    //tag = "";
 }
 
 cache_class::cache_class(void)
@@ -133,6 +133,7 @@ int cache_class::parse_request(char* cache_request, int byte_b_temp, int index_b
     byte_bits = byte_b_temp;
     tag_bits = tag_b_temp;
     
+    
     type_temp = cache_request[0];
 
     int j = 0;
@@ -148,7 +149,6 @@ int cache_class::parse_request(char* cache_request, int byte_b_temp, int index_b
     {
         binary_address += hex_to_bin(address_temp[i]);  // Converting address to binary string. 
     }
-    cout << binary_address << endl;
 
     j = 0;
     int k = 0;
@@ -170,9 +170,9 @@ int cache_class::parse_request(char* cache_request, int byte_b_temp, int index_b
 
     }
 
-    cout << tag_temp << endl;
-    cout << index_temp << endl;
-    cout << byte_temp << endl;
+    //cout << tag_temp << endl;
+    //cout << index_temp << endl;
+    //cout << byte_temp << endl;
 
     // The variables below hold the current access request.
     tag_request = strtol(tag_temp,NULL,2);      // Convert temp arrays to integers. 
@@ -184,6 +184,10 @@ int cache_class::parse_request(char* cache_request, int byte_b_temp, int index_b
         access_type = 0;        // if zero, set to false.
     else
         access_type = 1;        // if one, set to true.
+
+
+    //cache_write_policy();
+    //cache_read_policy();
 
 
     // Start implementing replacement policies.
@@ -221,10 +225,106 @@ const char* cache_class::hex_to_bin(char to_convert)
 }
 
 
-/*
-int cache_class::replacement_policy(int access_type, int memory_address)
+// Function to service a read request.
+int cache_class::cache_read_policy()
 {
-              
-//  still working on high level algorithm. taking longer than expected
-	
-} */
+    cache_accesses = cache_accesses+1;  // Increment total accesses.
+    cache_reads = cache_reads+1;        // Increment total reads.
+    bool interlock = false;
+    int to_evict = 0;
+
+    for(int j = 0; j < associativity; ++j)      // Look through entire set
+    {
+        if(cache_ptr[index_request][j].mru == 0 && interlock == false)
+        {
+            to_evict = j;       // Cache set to be evicted based off MRU bit
+            interlock = true;   // Setting interlock because victim is found.
+        }
+        if(cache_ptr[index_request][j].valid == 1)       // Check only valid indices
+        {
+            if(cache_ptr[index_request][j].tag == tag_request)  // Checking if tag requested and tag in cache match. If true, this is a cache hit.
+            {
+                cache_hits = cache_hits + 1;    // Increment hit count.
+                //cout << "cache_hit!" << endl;
+                //cout << "Stored: " << index_request << " " << j << endl;
+                cache_ptr[index_request][to_evict].mru = 1;      // Set MRU bit on access. 
+
+                return 0;
+            }
+
+        }
+        else if(cache_ptr[index_request][j].valid == 0)       // Check only valid indices
+        {
+
+            // If we enter this portion of function that means the tag requested wasn't found.
+            cache_misses = cache_misses + 1;    // Increment total cache misses.
+
+            cache_ptr[index_request][j].tag = tag_request;      // Fill cache line with tag requested. 
+            cache_ptr[index_request][j].mru = 1;                // Set MRU bit on data being brought into the cache. 
+            cache_ptr[index_request][j].valid = 1;                // Setting valid bit on line fill. 
+
+
+            return 1;
+
+        }
+
+    }
+    // If we enter this portion, this means all sets at current index are full.
+    // Therefore we need to evict a certain cache line chosen by LRU policy.
+    
+    cache_misses = cache_misses +1;                             // Incrementing miss counter.
+    cache_evictions = cache_evictions +1;                       // Incrementing evictions counter
+    if(cache_ptr[index_request][to_evict].dirty == 1)
+        cache_writebacks = cache_writebacks + 1;                // Increment write back counter if data has been modified.
+
+    cache_ptr[index_request][to_evict].tag = tag_request;       // Fill cache line with tag requested. 
+    cache_ptr[index_request][to_evict].mru = 1;                 // Set mru bit since line being brought into cache. 
+    cache_ptr[index_request][to_evict].valid = 1;               // Setting valid bit on line fill. 
+
+
+    return 1;
+}
+
+
+// Function to service a write request.
+int cache_class::cache_write_policy()
+{
+    cache_accesses = cache_accesses+1;          // Increment total accesses.
+    cache_writes = cache_writes+1;              // Increment total writes.
+    
+    for(int j = 0; j < associativity; ++j)
+    {
+        if(cache_ptr[index_request][j].valid == 0)      // Checking for empty set
+        {
+            cache_misses = cache_misses+1;              // Increment miss count.
+
+            cache_ptr[index_request][j].valid = 1;      // Set valid bit to one.
+
+            cache_ptr[index_request][j].mru = 1;        // Set valid bit to one.
+
+            cache_ptr[index_request][j].tag = tag_request;  // Setting tag address.
+            // What to do with byte request????
+            //cout << "Stored: " << index_request << " " << j << endl;
+            
+            return 0;
+
+        }else if(cache_ptr[index_request][j].valid ==1)
+        {
+            if(cache_ptr[index_request][j].tag == tag_request) 
+            {
+                cache_hits = cache_hits + 1;
+                cache_ptr[index_request][j].mru = 1;
+                cache_ptr[index_request][j].dirty = 1;
+                // Does anything need to be done to the cache line???
+            
+
+            }
+
+        }
+
+
+    }
+
+
+    return 0;
+}
