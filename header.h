@@ -64,9 +64,19 @@ class cache_class {
         // Function prototype with integer return.
         int cache_read_policy();
 
+        // Function prototype with integer return.
+        int cache_check_mru();
+
+        // Function prototype with integer return.
+        int display_results();
+
+        // Function prototype with integer return.
+        int cache_handler();
+
 
     private:
-        cache_set ** cache_ptr = NULL;       // Pointer to entire cache structure
+        cache_set ** cache_ptr;       // Pointer to entire cache structure
+
         int cache_accesses;     // Tracks number of cache accesses.
         int cache_reads;        // Tracks number of cache reads.
         int cache_writes;       // Tracks number of cache writes.

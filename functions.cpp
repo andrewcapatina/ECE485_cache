@@ -181,9 +181,9 @@ int cache_class::parse_request(char* cache_request, int byte_b_temp, int index_b
 
 
     if(type_temp == '0')
-        access_type = 0;        // if zero, set to false.
+        access_type = 0;        // if zero, set to read value.
     else
-        access_type = 1;        // if one, set to true.
+        access_type = 1;        // if one, set to write value.
 
 
     //cache_write_policy();
@@ -230,16 +230,10 @@ int cache_class::cache_read_policy()
 {
     cache_accesses = cache_accesses+1;  // Increment total accesses.
     cache_reads = cache_reads+1;        // Increment total reads.
-    bool interlock = false;
-    int to_evict = 0;
+    int to_evict = -1;                  // Integer to hold eviction candidate.
 
     for(int j = 0; j < associativity; ++j)      // Look through entire set
     {
-        if(cache_ptr[index_request][j].mru == 0 && interlock == false)
-        {
-            to_evict = j;       // Cache set to be evicted based off MRU bit
-            interlock = true;   // Setting interlock because victim is found.
-        }
         if(cache_ptr[index_request][j].valid == 1)       // Check only valid indices
         {
             if(cache_ptr[index_request][j].tag == tag_request)  // Checking if tag requested and tag in cache match. If true, this is a cache hit.
@@ -272,6 +266,7 @@ int cache_class::cache_read_policy()
     // If we enter this portion, this means all sets at current index are full.
     // Therefore we need to evict a certain cache line chosen by LRU policy.
     
+    to_evict = cache_check_mru();                               // Call function to find eviction candidate.    
     cache_misses = cache_misses +1;                             // Incrementing miss counter.
     cache_evictions = cache_evictions +1;                       // Incrementing evictions counter
     if(cache_ptr[index_request][to_evict].dirty == 1)
@@ -291,7 +286,8 @@ int cache_class::cache_write_policy()
 {
     cache_accesses = cache_accesses+1;          // Increment total accesses.
     cache_writes = cache_writes+1;              // Increment total writes.
-    
+    int to_evict = -1;                          // Integer to hold eviction candidate.
+
     for(int j = 0; j < associativity; ++j)
     {
         if(cache_ptr[index_request][j].valid == 0)      // Checking for empty set
@@ -304,11 +300,11 @@ int cache_class::cache_write_policy()
 
             cache_ptr[index_request][j].tag = tag_request;  // Setting tag address.
             // What to do with byte request????
-            //cout << "Stored: " << index_request << " " << j << endl;
             
             return 0;
 
-        }else if(cache_ptr[index_request][j].valid ==1)
+        }
+        else if(cache_ptr[index_request][j].valid ==1)
         {
             if(cache_ptr[index_request][j].tag == tag_request) 
             {
@@ -316,15 +312,86 @@ int cache_class::cache_write_policy()
                 cache_ptr[index_request][j].mru = 1;
                 cache_ptr[index_request][j].dirty = 1;
                 // Does anything need to be done to the cache line???
+                
+                return 0;
             
-
             }
-
         }
-
-
     }
+
+    // if no matches found, look for eviction candidate.
+    to_evict = cache_check_mru();                       // Calling function to find eviction candidate.
+    cache_misses = cache_misses + 1;                    // Increasing miss counter.
+    cache_evictions = cache_evictions +1;               // Incrementing evictions counter
+    if(cache_ptr[index_request][to_evict].dirty == 1)
+        cache_writebacks = cache_writebacks + 1;        // Increment write back counter if data has been modified.
+
+    cache_ptr[index_request][to_evict].tag = tag_request;       // Fill cache line with tag requested. 
+    cache_ptr[index_request][to_evict].mru = 1;                 // Set mru bit since line being brought into cache. 
+    cache_ptr[index_request][to_evict].valid = 1;               // Setting valid bit on line fill. 
+
+
 
 
     return 0;
+}
+
+
+// Function to find eviction candidate. Returns the index of where to evict. 
+int cache_class::cache_check_mru()
+{
+    int mru_count = 0;          // Tracks how many MRU bits are equal to one.
+    int to_evict = -1;          // Holds eviction candidate index.
+
+    for(int j = 0; j < associativity; ++j) // Check entire cache set
+    {
+        if(cache_ptr[index_request][j].mru == 1)        // Increment count when mru bits are equal to one.
+            ++mru_count;
+        else if(cache_ptr[index_request][j].mru == 0)     // Get the index where the mru bit is first zero.
+        {
+            to_evict = j;        // Eviction candidate index.
+            return to_evict;    // Return eviction candidate.
+        }
+    }
+    if(mru_count == associativity)      // If all MRU bits are 1 in the set, do the following:
+    {
+        to_evict = 0;   // Evict the first cache line in the set.
+        for(int j = 0; j < associativity; ++j)   // Reset MRU bits 
+            cache_ptr[index_request][j].mru = 0;
+    } 
+
+
+    return to_evict;    // Return eviction candidate index.
+}
+
+int cache_class::display_results()
+{
+    float hits_temp = cache_hits;
+    float accesses_temp = cache_accesses;
+    hit_ratio = (hits_temp/accesses_temp);  // Calculating hit ratio.
+    miss_ratio = 1-hit_ratio;                     // Calculating miss ratio.
+
+    cout << "Total accesses:    " << cache_accesses << endl;
+    cout << "Total reads:       " << cache_reads << endl;
+    cout << "Total writes:      " << cache_writes << endl;
+    cout << "Total hits:        " << cache_hits << endl;
+    cout << "Total misses:      " << cache_misses << endl;
+    cout << "Hit ratio:         " << (hit_ratio)*100 << "%" << endl;
+    cout << "Miss ratio:        " << (miss_ratio)*100 <<  "%" << endl;
+    cout << "Number evictions:  " << cache_evictions << endl;
+    cout << "Number writebacks: " << cache_writebacks << endl;
+
+    return 0;
+}
+
+int cache_class::cache_handler()
+{
+
+    if(access_type == 0)
+        cache_read_policy();
+    else
+        cache_write_policy();
+
+    return 0;
+
 }

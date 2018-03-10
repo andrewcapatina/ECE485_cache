@@ -58,14 +58,14 @@ int main(int argc, char * argv[])
     cache.cache_creator(sets_per_way,associativity,line_size);       // Cache object creation.
 
     fd.open(argv[1]);
-    //while(getline(fd,cache_request) != -1)
-
-        getline(fd,cache_request);
+    while(getline(fd,cache_request))
+    {
         strcpy(cache_request_char,cache_request.c_str());
         cache.parse_request(cache_request_char, byte_bits, index_bits, address_bits);
+        cache.cache_handler();
 
-
-
+    }
+    cache.display_results();
     cache.cache_deletor();
     return 0;
 }
