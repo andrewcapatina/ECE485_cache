@@ -5,6 +5,8 @@
  * 2/16/2018
  *
  * 	This file contains the functions for our cache design.
+ *      File will allocate cache structure and perform replacement policies.
+ *
  *
  */
  
@@ -294,15 +296,12 @@ int cache_class::cache_write_policy()
     {
         if(cache_ptr[index_request][j].valid ==1 && cache_ptr[index_request][j].tag == tag_request)
         {
-            //if(cache_ptr[index_request][j].tag == tag_request) 
-            //{
                 cache_hits = cache_hits + 1;                 // Increment cache hit counter.
                 cache_ptr[index_request][j].mru = 1;         // Set mru bit due to access.
                 cache_ptr[index_request][j].dirty = 1;       // Setting dirty bit.
                 
                 return 0;
             
-            //}
         }else if(cache_ptr[index_request][j].valid == 0)      // Checking for empty set
         {
             cache_misses = cache_misses+1;              // Increment miss count.
