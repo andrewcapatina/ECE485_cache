@@ -1,7 +1,7 @@
 /*
  *
  * Andrew Capatina
- * David Y
+ * David Yakovlev
  *
  * 2/16/2018
  *
@@ -18,7 +18,6 @@
 #include <math.h>
 #include <string>
 #include <sstream>
-#include <valarray>
 
 using namespace std;
 
@@ -31,12 +30,12 @@ struct cache_set
 
     bool dirty;         // Dirty bit variable. Keeps track if data modified.
 
-    string tag;         // Tag address for cache data
+    int tag;            // Tag address for cache data
 
-    int *cache_line;      // Array for line size in bytes.
+    int *cache_line;    // Array for line size in bytes.
 
-    cache_set();              // Constructor for struct
-    ~cache_set();             // Destructor for struct
+    cache_set();        // Constructor for struct
+    ~cache_set();       // Destructor for struct
 
 };
 
@@ -58,11 +57,25 @@ class cache_class {
         // Function prototype with char paramater.
         const char* hex_to_bin(char to_convert);
 
-		// Function for replacement policy (placeholder)
-		// int replacement_policy(int access_type, int memory_address);
+        // Function prototype with integer return.
+        int cache_write_policy();
+
+        // Function prototype with integer return.
+        int cache_read_policy();
+
+        // Function prototype with integer return.
+        int cache_check_mru();
+
+        // Function prototype with integer return.
+        int display_results();
+
+        // Function prototype with integer return.
+        int cache_handler();
+
 
     private:
-        cache_set ** cache_ptr = NULL;       // Pointer to entire cache structure
+        cache_set ** cache_ptr;       // Pointer to entire cache structure
+
         int cache_accesses;     // Tracks number of cache accesses.
         int cache_reads;        // Tracks number of cache reads.
         int cache_writes;       // Tracks number of cache writes.

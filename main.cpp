@@ -1,11 +1,13 @@
 /*
  *
  * Andrew Capatina
- * David Y
+ * David Yakovlev
  *
  * 2/16/2018
  *
  * 	This file contains the main application.
+ * 	Takes input from STDIN, creates cache paramaters, reads from text file,
+ * 	and calls handler function to run policies.
  *
  */
 #include "header.h"
@@ -17,7 +19,6 @@ using namespace std;
 // argv[4] = cache line size.
 int main(int argc, char * argv[])
 {
-    int sets = 0;
     int sets_per_way = 0;
     int associativity = 0;
     int line_size = 0;
@@ -27,36 +28,37 @@ int main(int argc, char * argv[])
     string cache_request;
     char cache_request_char[20];
 
-    cache_class cache;       // Cache object creation.
+    cache_class cache;          // Cache object creation.
 
     ifstream fd;                // Initializing file descriptor.
 
-    if(argc != 5)
+    if(argc != 5)               // Prompt if not enough input args.
     {
         cout << "Not enough input arguments." << endl;
         cout << "Must input file from the same directory." << endl;
         return 1;
     }
-    sets = atoi(argv[2]);       // Converting arguments to int
-    associativity = atoi(argv[3]);
-    line_size = atoi(argv[4]);
-    index_bits = log2(sets);    // Taking log2 of paramaters for addressing bits
-    byte_bits = log2(line_size);
-    address_bits = 32- byte_bits - index_bits;
+    sets_per_way = atoi(argv[2]);               // Getting number of total sets.
+    associativity = atoi(argv[3]);              // Getting set associativity size.
 
-    sets_per_way = sets/associativity;  // Getting sets per way.
+    line_size = atoi(argv[4]);                  // Getting line size.
+
+    index_bits = log2(sets_per_way);            // Getting number of index bits.
+    byte_bits = log2(line_size);                // Getting number of byte bits.
+    address_bits = 32- byte_bits - index_bits;  // Getting number of address bits.
 
     cache.cache_creator(sets_per_way,associativity,line_size);       // Cache object creation.
 
-    fd.open(argv[1]);
-    //while(getline(fd,cache_request) != -1)
+    fd.open(argv[1]);                           // Opening file to be read.
+    while(getline(fd,cache_request))            // Retrieve each line until done.
+    {
+        strcpy(cache_request_char,cache_request.c_str());       // Converting string to char.
+        cache.parse_request(cache_request_char, byte_bits, index_bits, address_bits);   // Calling function to parse request.
+        cache.cache_handler();                                  // Calling function to handle the request.
 
-        getline(fd,cache_request);
-        strcpy(cache_request_char,cache_request.c_str());
-        cache.parse_request(cache_request_char, byte_bits, index_bits, address_bits);
+    }
+    cache.display_results();            // Call to display all results.
+    cache.cache_deletor();              // Call to de allocate.
 
-
-
-    cache.cache_deletor();
     return 0;
 }
